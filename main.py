@@ -15,11 +15,11 @@ def main():
 
     else:
         coordinates = cities_coordinates.get(city.capitalize())
-        current_weather = weather_api.get_current_city_weater(
+        current_weather = weather_api.get_current_city_weather(
             latitude=coordinates["latitude"], longitude=coordinates["longitude"])
 
         if not current_weather:
-            return print("Eror, pls try later")
+            return print("Error, pls try later")
 
         print(f"Current weather for: {city.capitalize()}")
         for key, value in current_weather.items():

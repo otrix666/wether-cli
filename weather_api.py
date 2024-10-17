@@ -1,26 +1,36 @@
-from requests import get
+from urllib import (
+    request,
+    parse
+)
+
+import json
 
 
 class WeatherApi:
     def __init__(self):
-        self._base_url = "https://api.open-meteo.com/v1"
-        self._forecast_endpoint = "/forecast"
+        self._base_url = "https://api.open-meteo.com"
+        self._forecast_endpoint = "/v1/forecast"
 
-    def get_current_city_weater(self, latitude: float, longitude: float) -> dict[str, str] | bool:
+    def get_current_city_weather(self, latitude: float, longitude: float) -> dict[str, str] | bool:
         try:
             params = {
                 "latitude": latitude,
                 "longitude": longitude,
-                "current": ["temperature_2m", "relative_humidity_2m", "surface_pressure"]
+                "current": "temperature_2m,relative_humidity_2m,surface_pressure"
             }
 
-            response = get(
-                url=f"{self._base_url}{self._forecast_endpoint}", params=params).json()
+            query_string = parse.urlencode(params)
+            request_url = f"{self._base_url}{self._forecast_endpoint}?{query_string}"
+
+            with request.urlopen(url=request_url) as response:
+                data = response.read()
+
+            json_data = json.loads(data.decode("utf-8"))
 
             return {
-                "temperature": f'{response["current"]["temperature_2m"]} {response["current_units"]["temperature_2m"]}',
-                "pressure": f'{response["current"]["surface_pressure"]} {response["current_units"]["surface_pressure"]}',
-                "humidity": f'{response["current"]["relative_humidity_2m"]} {response["current_units"]["relative_humidity_2m"]}',
+                "temperature": f'{json_data["current"]["temperature_2m"]} {json_data["current_units"]["temperature_2m"]}',
+                "pressure": f'{json_data["current"]["surface_pressure"]} {json_data["current_units"]["surface_pressure"]}',
+                "humidity": f'{json_data["current"]["relative_humidity_2m"]} {json_data["current_units"]["relative_humidity_2m"]}',
             }
         except:
             return False
